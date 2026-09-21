@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CalcWorker — Feature Graphic (1024x500)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1024px; height: 500px; }
+  body {
+    background: #06080d;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+    display: flex; align-items: center;
+    padding: 0 72px;
+    position: relative;
+    overflow: hidden;
+  }
+  /* ambient gradient blobs */
+  .blob { position: absolute; border-radius: 50%; filter: blur(110px); opacity: .5; }
+  .b1 { width: 420px; height: 420px; background: #2563eb; left: -120px; top: -120px; opacity: .35; }
+  .b2 { width: 380px; height: 380px; background: #7c3aed; right: -100px; bottom: -140px; opacity: .30; }
+  .b3 { width: 220px; height: 220px; background: #0284c7; right: 280px; top: -80px; opacity: .28; }
+
+  .mark {
+    width: 228px; height: 228px; border-radius: 54px; flex: none;
+    box-shadow: 0 24px 80px rgba(37,99,235,.55), 0 0 0 1px rgba(56,189,248,.35);
+    position: relative; z-index: 1;
+  }
+  .copy { margin-left: 64px; position: relative; z-index: 1; }
+  .eyebrow {
+    display: inline-block; font-size: 20px; font-weight: 800; letter-spacing: 4px;
+    text-transform: uppercase; color: #38bdf8; margin-bottom: 14px;
+  }
+  h1 {
+    font-size: 96px; font-weight: 800; letter-spacing: -1px; line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #38bdf8 55%, #818cf8 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin-bottom: 16px;
+  }
+  .tag { font-size: 34px; font-weight: 600; color: #e2e8f0; margin-bottom: 22px; }
+  .tag b {
+    background: linear-gradient(135deg, #0284c7, #2563eb 55%, #7c3aed);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .chips { display: flex; gap: 12px; }
+  .chip {
+    font-size: 19px; font-weight: 600; color: #cbd5e1;
+    border: 1px solid rgba(148,163,184,.35); border-radius: 999px;
+    padding: 9px 20px; background: rgba(17,23,38,.55);
+  }
+</style>
+</head>
+<body>
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+  <img class="mark" src="../www/icon-512.png" alt="CalcWorker icon">
+  <div class="copy">
+    <div class="eyebrow">Free &bull; Fast &bull; Private</div>
+    <h1>CalcWorker</h1>
+    <div class="tag"><b>102</b> calculators in your pocket</div>
+    <div class="chips">
+      <span class="chip">Finance</span>
+      <span class="chip">Tax</span>
+      <span class="chip">Health</span>
+      <span class="chip">Math</span>
+      <span class="chip">Everyday</span>
+    </div>
+  </div>
+</body>
+</html>

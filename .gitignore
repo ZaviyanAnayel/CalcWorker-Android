@@ -1,0 +1,25 @@
+# node
+node_modules/
+npm-debug.log*
+
+# Capacitor / Android build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/app/src/main/assets/public/
+android/capacitor.settings.json
+android/local.properties
+
+# Release signing — NEVER commit the keystore or passwords
+*.keystore
+*.jks
+release/
+keystore.properties
+
+# OS / editor
+.DS_Store
+.idea/
+*.iml
+
+# Env files (must never contain secrets in this repo)
+/tmp/

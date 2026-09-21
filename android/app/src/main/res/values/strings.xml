@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CalcWorker</string>
+    <string name="title_activity_main">CalcWorker</string>
+    <string name="package_name">com.zaviyanllc.calcworker</string>
+    <string name="custom_url_scheme">com.zaviyanllc.calcworker</string>
+</resources>
