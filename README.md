@@ -58,17 +58,39 @@ The upload keystore is **never** committed. It lives only:
 1. With the developer (in a password manager), and
 2. As the `KEYSTORE_BASE64` GitHub Actions secret (for CI builds).
 
-### Creating the secrets (one-time)
+### Generating the upload keystore (one-time, ~2 minutes)
 
-1. Base64-encode the keystore (no newlines):
-   `base64 -w0 release.keystore` → copy the output.
+**Option A — Android Studio (easiest):**
+1. Open `android/` in Android Studio.
+2. Menu: **Build → Generate Signed App Bundle / APK…** → select *Android App Bundle* → Next.
+3. Under *Key store path*, click **Create new…** and fill in:
+   - Key store path: save as `calcworker-upload.keystore` (keep this file private)
+   - Password: generate a strong one (store in your password manager)
+   - Alias: `calcworker-upload`, key password: another strong one
+   - Validity: 25+ years, Certificate fields: your details
+4. You don't need to finish the wizard's build — the keystore file is what matters.
+   Cancel after creating it, or let it build; either way, keep the `.keystore` file.
+
+**Option B — command line (any machine with Java):**
+```bash
+keytool -genkeypair -v -keystore calcworker-upload.keystore \
+  -alias calcworker-upload -keyalg RSA -keysize 2048 -validity 9125
+```
+(Use strong passwords; never paste them into chat or commit them.)
+
+### Creating the GitHub secrets (one-time)
+
+1. Base64-encode the keystore (single line, no wrapping):
+   `base64 -w0 calcworker-upload.keystore` → copy the output.
+   (macOS: `base64 -i calcworker-upload.keystore | tr -d '\n'`)
 2. In GitHub: repo **Settings → Secrets and variables → Actions → New repository secret**:
    - `KEYSTORE_BASE64` → the base64 output from step 1
    - `KEYSTORE_PASSWORD` → keystore password
-   - `KEY_ALIAS` → key alias (e.g. `calcworker-upload`)
+   - `KEY_ALIAS` → `calcworker-upload`
    - `KEY_PASSWORD` → key password
 3. Run the **Build signed release AAB** workflow (Actions → manual dispatch) and
    download the `.aab` artifact — this is what gets uploaded to Play Console.
+   The workflow also verifies the signature with `apksigner` before uploading.
 
 ### Local signed build
 
