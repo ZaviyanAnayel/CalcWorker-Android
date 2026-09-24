@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- CalcWorker launcher foreground: calculator glyph with sky glow accent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+
+    <!-- soft glow -->
+    <path
+        android:pathData="M54,18 m-30,0 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0"
+        android:fillColor="#12324A"
+        android:fillAlpha="0.55" />
+
+    <!-- calculator body -->
+    <path
+        android:pathData="M38,30 h32 a8,8 0 0,1 8,8 v40 a8,8 0 0,1 -8,8 H38 a8,8 0 0,1 -8,-8 V38 a8,8 0 0,1 8,-8 Z"
+        android:fillColor="#0B1220"
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="3.5" />
+
+    <!-- display -->
+    <path
+        android:pathData="M37,40 h34 v10 H37 Z"
+        android:fillColor="#38BDF8"
+        android:fillAlpha="0.28" />
+    <path
+        android:pathData="M42,48 h16"
+        android:strokeColor="#7DD3FC"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round" />
+
+    <!-- keys -->
+    <path android:pathData="M40,58 h5 M51.5,58 h5 M63,58 h5" android:strokeColor="#38BDF8" android:strokeWidth="3.2" android:strokeLineCap="round" />
+    <path android:pathData="M40,67 h5 M51.5,67 h5 M63,67 h5" android:strokeColor="#38BDF8" android:strokeWidth="3.2" android:strokeLineCap="round" />
+    <path android:pathData="M40,76 h16" android:strokeColor="#34D399" android:strokeWidth="3.2" android:strokeLineCap="round" />
+    <path android:pathData="M63,76 h5" android:strokeColor="#38BDF8" android:strokeWidth="3.2" android:strokeLineCap="round" />
+</vector>
