@@ -15,23 +15,39 @@ object CalcRegistry {
 
     val popular: List<CalcSpec> = all.filter { it.popular }
 
-    /** Lightweight full-text search over titles + keywords (first character is enough). */
+    /** Enhanced full-text search over titles, slugs, blurbs, and keywords with multi-token scoring. */
     fun search(query: String, limit: Int = 12): List<CalcSpec> {
         val q = query.trim().lowercase()
         if (q.isEmpty()) return emptyList()
+        val tokens = q.split(Regex("\\s+")).filter { it.isNotEmpty() }
+
         val scored = all.mapNotNull { spec ->
             var score = 0
             val title = spec.title.lowercase()
+            val slugFormatted = spec.slug.replace("-", " ")
+            val blurb = spec.blurb.lowercase()
+
             when {
-                title == q -> score = 100
-                title.startsWith(q) -> score = 80
-                title.contains(q) -> score = 50
-                spec.slug.replace("-", " ").contains(q) -> score = 40
-                else -> {
-                    val hit = spec.keywords.indexOfFirst { it.lowercase().contains(q) }
-                    if (hit >= 0) score = 30 - hit
+                title == q -> score += 100
+                title.startsWith(q) -> score += 80
+                title.contains(q) -> score += 50
+                slugFormatted.contains(q) -> score += 40
+            }
+
+            for (token in tokens) {
+                if (title.contains(token)) score += 15
+                if (slugFormatted.contains(token)) score += 10
+                if (blurb.contains(token)) score += 5
+                for ((idx, kw) in spec.keywords.withIndex()) {
+                    val kwLower = kw.lowercase()
+                    if (kwLower == token) {
+                        score += 25
+                    } else if (kwLower.contains(token)) {
+                        score += maxOf(1, 15 - idx)
+                    }
                 }
             }
+
             if (score > 0) spec to score else null
         }
         return scored.sortedByDescending { it.second }.take(limit).map { it.first }
