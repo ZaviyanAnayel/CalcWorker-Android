@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">CalcWorker</string>
+    <string name="app_short_description">100+ native offline financial, tax, real estate, mortgage, and ROI calculators.</string>
+    <string name="app_full_description">CalcWorker is an all-in-one offline calculator suite featuring 100+ high-precision tools for finance, mortgage, tax, loans, real estate, investments, unit conversion, and business metrics. Built with native Kotlin for 100% privacy and lightning-fast results.</string>
+    <string name="app_seo_keywords">calculator, mortgage calculator, loan calculator, tax calculator, 401k calculator, compound interest, currency converter, real estate calculator, roi calculator, paycheck calculator, financial tools, unit converter</string>
 </resources>
