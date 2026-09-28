@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.zaviyanllc.calcworker"
-    compileSdk = 34
+    compileSdk = 36
 
     packaging {
         resources {
@@ -27,8 +27,8 @@ android {
     defaultConfig {
         applicationId = "com.zaviyanllc.calcworker"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 3
+        targetSdk = 36
+        versionCode = 4
         versionName = "2.0.0"
     }
 
