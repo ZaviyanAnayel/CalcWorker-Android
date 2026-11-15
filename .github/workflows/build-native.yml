@@ -2,20 +2,24 @@ name: Build native CalcWorker AAB + debug APK
 
 # Builds the native Kotlin/Compose app.
 # - Unsigned (signed=false, default): for QA.
-# - Signed (signed=true): signs the release AAB with the upload keystore from the
-#   KEYSTORE_BASE64 / KEYSTORE_PASSWORD / KEY_ALIAS / KEY_PASSWORD repo secrets.
+# - Signed (signed=true): signs the release AAB with the upload keystore from secrets
+#   or generates a new upload keystore with KEYSTORE_PASSWORD.
 
 on:
   workflow_dispatch:
     inputs:
       version_name:
-        description: "versionName for this build (e.g. 2.0.0)"
+        description: "versionName for this build (e.g. 2.0.2)"
         required: false
-        default: "2.0.0"
+        default: "2.0.2"
       signed:
         description: "Sign the release AAB with the upload keystore secrets (true/false)"
         required: false
-        default: "false"
+        default: "true"
+      generate_keystore:
+        description: "Generate a new upload keystore with KEYSTORE_PASSWORD (true/false)"
+        required: false
+        default: "true"
 
 jobs:
   build:
@@ -36,16 +40,42 @@ jobs:
       - name: Setup Gradle caching
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Restore upload keystore
+      - name: Setup upload keystore
         if: ${{ inputs.signed == 'true' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "KEYSTORE_BASE64 secret is not set." >&2
-            exit 1
+          mkdir -p app/build/outputs/keystore
+          if [ "${{ inputs.generate_keystore }}" = "true" ]; then
+            echo "Generating fresh upload keystore with provided password..."
+            keytool -genkeypair -v \
+              -keystore "$RUNNER_TEMP/release.keystore" \
+              -alias "calcworker" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" \
+              -keypass "$KEY_PASSWORD" \
+              -dname "CN=Zaviyan Anayel, OU=CalcWorker, O=Zaviyan LLC, L=Austin, ST=Texas, C=US"
+            
+            keytool -export -rfc \
+              -keystore "$RUNNER_TEMP/release.keystore" \
+              -alias "calcworker" \
+              -file "$RUNNER_TEMP/upload_certificate.pem" \
+              -storepass "$KEYSTORE_PASSWORD"
+            
+            cp "$RUNNER_TEMP/release.keystore" app/build/outputs/keystore/calcworker.keystore
+            cp "$RUNNER_TEMP/upload_certificate.pem" app/build/outputs/keystore/upload_certificate.pem
+            
+            echo "KEYSTORE_ALIAS=calcworker" >> "$GITHUB_ENV"
+          else
+            if [ -z "$KEYSTORE_BASE64" ]; then
+              echo "KEYSTORE_BASE64 secret is not set." >&2
+              exit 1
+            fi
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            echo "KEYSTORE_ALIAS=${{ secrets.KEY_ALIAS }}" >> "$GITHUB_ENV"
           fi
-          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
           echo "KEYSTORE_FILE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
 
       - name: Build release AAB
@@ -55,7 +85,7 @@ jobs:
             ./gradlew bundleRelease --no-daemon --stacktrace \
               -Pandroid.injected.signing.store.file="$KEYSTORE_FILE" \
               -Pandroid.injected.signing.store.password="${{ secrets.KEYSTORE_PASSWORD }}" \
-              -Pandroid.injected.signing.key.alias="${{ secrets.KEY_ALIAS }}" \
+              -Pandroid.injected.signing.key.alias="$KEYSTORE_ALIAS" \
               -Pandroid.injected.signing.key.password="${{ secrets.KEY_PASSWORD }}"
           else
             ./gradlew bundleRelease --no-daemon --stacktrace
@@ -71,6 +101,14 @@ jobs:
 
       - name: Build debug APK (unsigned)
         run: ./gradlew assembleDebug --no-daemon --stacktrace
+
+      - name: Upload Keystore & Certificate
+        if: ${{ inputs.signed == 'true' && inputs.generate_keystore == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: calcworker-${{ inputs.version_name }}-keystore
+          path: app/build/outputs/keystore/*
+          retention-days: 90
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
