@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.zaviyanllc.calcworker"
-    compileSdk = 36
+    compileSdk = 35
 
     packaging {
         resources {
@@ -19,17 +19,15 @@ android {
     // Exclude old collection-ktx (merged into collection 1.4.0) and JVM variants to avoid duplicate classes
     configurations.all {
         exclude(group = "androidx.collection", module = "collection-ktx")
-        exclude(group = "androidx.datastore", module = "datastore-core-jvm")
-        exclude(group = "androidx.datastore", module = "datastore-core-okio-jvm")
         exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-ktx")
     }
 
     defaultConfig {
         applicationId = "com.zaviyanllc.calcworker"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 4
-        versionName = "2.0.0"
+        targetSdk = 35
+        versionCode = 5
+        versionName = "2.0.1"
     }
 
     buildTypes {
