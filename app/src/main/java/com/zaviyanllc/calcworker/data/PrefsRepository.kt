@@ -1,63 +1,53 @@
 package com.zaviyanllc.calcworker.data
 
 import android.content.Context
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
-import java.io.IOException
+import android.content.SharedPreferences
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
-private val Context.dataStore by preferencesDataStore(name = "calcworker_prefs")
+/** Favorites, recents and theme — rock-solid SharedPreferences with StateFlow.
+ *  Zero disk lock, zero protobuf, zero background thread deadlocks. */
+class PrefsRepository(context: Context) {
 
-/** Favorites, recents and theme — the only things the app persists. */
-class PrefsRepository(private val context: Context) {
+    private val sp: SharedPreferences = context.applicationContext.getSharedPreferences("calcworker_prefs", Context.MODE_PRIVATE)
 
-    private object Keys {
-        val FAVORITES = stringSetPreferencesKey("favorites")
-        val RECENTS = stringPreferencesKey("recents_csv")
-        val THEME = stringPreferencesKey("theme") // "dark" | "dim"
+    private val _favorites = MutableStateFlow(loadFavorites())
+    val favorites: StateFlow<Set<String>> = _favorites.asStateFlow()
+
+    private val _recents = MutableStateFlow(loadRecents())
+    val recents: StateFlow<List<String>> = _recents.asStateFlow()
+
+    private val _theme = MutableStateFlow(sp.getString("theme", "dark") ?: "dark")
+    val theme: StateFlow<String> = _theme.asStateFlow()
+
+    private fun loadFavorites(): Set<String> {
+        return sp.getStringSet("favorites", null) ?: emptySet()
     }
 
-    val favorites: Flow<Set<String>> = context.dataStore.data
-        .catch { if (it is IOException) emit(emptyPreferences()) else emit(emptyPreferences()) }
-        .map { it[Keys.FAVORITES] ?: emptySet() }
-
-    val recents: Flow<List<String>> = context.dataStore.data
-        .catch { if (it is IOException) emit(emptyPreferences()) else emit(emptyPreferences()) }
-        .map { (it[Keys.RECENTS] ?: "").split(",").filter { s -> s.isNotBlank() } }
-
-    val theme: Flow<String> = context.dataStore.data
-        .catch { if (it is IOException) emit(emptyPreferences()) else emit(emptyPreferences()) }
-        .map { it[Keys.THEME] ?: "dark" }
+    private fun loadRecents(): List<String> {
+        val raw = sp.getString("recents_csv", "") ?: ""
+        return raw.split(",").filter { it.isNotBlank() }
+    }
 
     suspend fun toggleFavorite(slug: String) {
-        try {
-            context.dataStore.edit { prefs ->
-                val cur = prefs[Keys.FAVORITES] ?: emptySet()
-                prefs[Keys.FAVORITES] = if (slug in cur) cur - slug else cur + slug
-            }
-        } catch (_: Exception) {}
+        val cur = _favorites.value
+        val updated = if (slug in cur) cur - slug else cur + slug
+        _favorites.value = updated
+        sp.edit().putStringSet("favorites", updated).apply()
     }
 
     suspend fun pushRecent(slug: String) {
-        try {
-            context.dataStore.edit { prefs ->
-                val cur = (prefs[Keys.RECENTS] ?: "").split(",").filter { it.isNotBlank() }.toMutableList()
-                cur.remove(slug)
-                cur.add(0, slug)
-                prefs[Keys.RECENTS] = cur.take(12).joinToString(",")
-            }
-        } catch (_: Exception) {}
+        val cur = _recents.value.toMutableList()
+        cur.remove(slug)
+        cur.add(0, slug)
+        val updated = cur.take(12)
+        _recents.value = updated
+        sp.edit().putString("recents_csv", updated.joinToString(",")).apply()
     }
 
     suspend fun setTheme(theme: String) {
-        try {
-            context.dataStore.edit { it[Keys.THEME] = theme }
-        } catch (_: Exception) {}
+        _theme.value = theme
+        sp.edit().putString("theme", theme).apply()
     }
 }

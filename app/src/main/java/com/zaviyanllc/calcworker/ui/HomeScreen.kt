@@ -29,9 +29,9 @@ fun HomeScreen(
     onOpenAi: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val favorites by prefs.favorites.collectAsState(initial = emptySet())
-    val recents by prefs.recents.collectAsState(initial = emptyList())
-    val theme by prefs.theme.collectAsState(initial = "dark")
+    val favorites by prefs.favorites.collectAsState()
+    val recents by prefs.recents.collectAsState()
+    val theme by prefs.theme.collectAsState()
     var query by remember { mutableStateOf("") }
     var chip by remember { mutableStateOf<String?>(null) }
 
@@ -136,7 +136,7 @@ fun HomeScreen(
                 item { EmptyHint(Icons.Filled.SearchOff, "No calculators match. Try another word.") }
             } else {
                 item { SectionHeader("${results.size} result${if (results.size == 1) "" else "s"}") }
-                items(results, key = { it.slug }) { spec ->
+                items(results, key = { "filter_${it.slug}" }) { spec ->
                     Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
                         CalcRowCard(
                             spec = spec,
@@ -155,7 +155,7 @@ fun HomeScreen(
                     contentPadding = PaddingValues(horizontal = 20.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(CalcRegistry.popular, key = { it.slug }) { spec ->
+                    items(CalcRegistry.popular, key = { "pop_${it.slug}" }) { spec ->
                         CalcMiniCard(spec, onOpen = { onOpenCalc(spec.slug) })
                     }
                 }
@@ -165,7 +165,7 @@ fun HomeScreen(
             // ---- favorites ----
             if (favSpecs.isNotEmpty()) {
                 item { SectionHeader("Your favorites") }
-                items(favSpecs, key = { it.slug }) { spec ->
+                items(favSpecs, key = { "fav_${it.slug}" }) { spec ->
                     Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
                         CalcRowCard(
                             spec, isFavorite = true,
@@ -179,7 +179,7 @@ fun HomeScreen(
             // ---- recent ----
             if (recentSpecs.isNotEmpty()) {
                 item { SectionHeader("Recently used") }
-                items(recentSpecs.take(6), key = { it.slug }) { spec ->
+                items(recentSpecs.take(6), key = { "recent_${it.slug}" }) { spec ->
                     Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
                         CalcRowCard(
                             spec, isFavorite = spec.slug in favorites,
@@ -195,7 +195,7 @@ fun HomeScreen(
                 val inCat = CalcRegistry.all.filter { it.category == cat }
                 if (inCat.isNotEmpty()) {
                     item { SectionHeader("$cat (${inCat.size})") }
-                    items(inCat, key = { it.slug }) { spec ->
+                    items(inCat, key = { "cat_${cat}_${it.slug}" }) { spec ->
                         Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
                             CalcRowCard(
                                 spec, isFavorite = spec.slug in favorites,

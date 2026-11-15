@@ -25,8 +25,8 @@ android {
         applicationId = "com.zaviyanllc.calcworker"
         minSdk = 24
         targetSdk = 35
-        versionCode = 7
-        versionName = "2.0.3"
+        versionCode = 8
+        versionName = "2.0.4"
     }
 
     buildTypes {
@@ -77,7 +77,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
