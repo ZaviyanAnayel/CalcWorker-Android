@@ -16,18 +16,17 @@ android {
         }
     }
 
-    // Exclude old collection-ktx (merged into collection 1.4.0) and JVM variants to avoid duplicate classes
+    // Exclude old collection-ktx (merged into collection 1.4.0) to avoid duplicate classes
     configurations.all {
         exclude(group = "androidx.collection", module = "collection-ktx")
-        exclude(group = "androidx.lifecycle", module = "lifecycle-viewmodel-ktx")
     }
 
     defaultConfig {
         applicationId = "com.zaviyanllc.calcworker"
         minSdk = 24
         targetSdk = 35
-        versionCode = 6
-        versionName = "2.0.2"
+        versionCode = 7
+        versionName = "2.0.3"
     }
 
     buildTypes {
