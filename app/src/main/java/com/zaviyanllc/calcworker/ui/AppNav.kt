@@ -34,7 +34,7 @@ fun AppNav(
     val route = backStack?.destination?.route ?: "home"
     val showBottomBar = route in listOf("home", "favorites", "ai", "about")
 
-    Scaffold(
+    Scaffold(modifier = Modifier.imePadding(),
         bottomBar = {
             if (showBottomBar) {
                 NavigationBar {

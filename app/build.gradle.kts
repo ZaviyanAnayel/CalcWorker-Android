@@ -25,8 +25,8 @@ android {
         applicationId = "com.zaviyanllc.calcworker"
         minSdk = 24
         targetSdk = 36
-        versionCode = 11
-        versionName = "2.0.7"
+        versionCode = 12
+        versionName = "2.0.8"
     }
 
     buildTypes {
